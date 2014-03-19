@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/" debug="false">
+	<appender name="STDOUT" class="org.apache.log4j.ConsoleAppender">
+		<param name="Target" value="System.out"/>
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %p %t %c - %m%n"/>
+		</layout>
+		<filter class="org.apache.log4j.varia.LevelRangeFilter">
+			<param name="LevelMin" value="DEBUG"/>
+			<param name="LevelMax" value="INFO"/>
+		</filter>
+	</appender>
+	<appender name="STDERR" class="org.apache.log4j.ConsoleAppender">
+		<param name="Target" value="System.err"/>
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %p %t %c - %m%n"/>
+		</layout>
+		<filter class="org.apache.log4j.varia.LevelRangeFilter">
+			<param name="LevelMin" value="WARN"/>
+			<param name="LevelMax" value="FATAL"/>
+		</filter>
+	</appender>
+	<appender name="FILEOUT" class="org.apache.log4j.RollingFileAppender">
+		<param name="file" value="${user.home}/.InfobipTaskScheduler/log/output.log"/>
+		<param name="immediateFlush" value="true"/>
+		<param name="MaxFileSize" value="5MB"/>
+		<param name="MaxBackupIndex" value="10"/>
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %p %t %c - %m%n"/>
+		</layout>
+		<filter class="org.apache.log4j.varia.LevelRangeFilter">
+			<param name="LevelMin" value="DEBUG"/>
+			<param name="LevelMax" value="FATAL"/>
+		</filter>
+	</appender>
+	<appender name="FILEERR" class="org.apache.log4j.RollingFileAppender">
+		<param name="file" value="${user.home}/.InfobipTaskScheduler/log/error.log"/>
+		<param name="immediateFlush" value="true"/>
+		<param name="MaxFileSize" value="5MB"/>
+		<param name="MaxBackupIndex" value="10"/>
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %p %t %c - %m%n"/>
+		</layout>
+		<filter class="org.apache.log4j.varia.LevelRangeFilter">
+			<param name="LevelMin" value="ERROR"/>
+			<param name="LevelMax" value="FATAL"/>
+		</filter>
+	</appender>
+	<category name="org.infobip">
+		<level value="DEBUG"/>
+	</category>
+	<root>
+		<level value="WARN"/>
+		<appender-ref ref="STDOUT"/>
+		<appender-ref ref="STDERR"/>
+		<appender-ref ref="FILEOUT"/>
+		<appender-ref ref="FILEERR"/>
+	</root>
+</log4j:configuration>

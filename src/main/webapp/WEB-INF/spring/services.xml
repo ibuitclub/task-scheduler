@@ -1,0 +1,17 @@
+<beans 
+	xmlns="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+	<import resource="services-test.xml"/>
+
+	<bean id="taskScheduleService" class="org.infobip.taskscheduler.service.internal.DefaultTaskScheduleService" 
+		init-method="init" destroy-method="destroy">
+
+		<constructor-arg index="0" ref="restTemplate"/>
+		<constructor-arg index="1" ref="taskScheduler"/>
+		<constructor-arg index="2" ref="taskDataService"/>
+		<constructor-arg index="3" ref="taskResultDataService"/>
+	</bean>
+
+</beans>
