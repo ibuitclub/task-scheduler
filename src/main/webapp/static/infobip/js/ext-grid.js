@@ -231,7 +231,21 @@ Ext.onReady(function() {
 			iconCls : 'icon-schedule',
 			disabled : true,
 			handler : function() {
-				var item = grid.getView().getSelectionModel().getSelection()[0];
+			var item = grid.getView().getSelectionModel().getSelection()[0];
+		
+		//problem: when multiple records are selected, only the first row selected executes its job
+				
+		//	var dataToSend = new Array();						first potential solution
+		//		for (var i = 0; i < selection.length; i++) {
+		//		dataToSend.push(selection[i]);
+		//				}
+		//									
+		//	selected = [];										second potential solution
+		//	Ext.each(s, function (item) {
+		//	selected.push(item.data.someField);
+		//								}); 
+				
+				
 				if (item) {
 					Ext.Ajax.request({
 						method : 'POST',
@@ -365,17 +379,13 @@ Ext.onReady(function() {
 			}
 		}]
 	};
-
+	
+	var sm = Ext.create('Ext.selection.CheckboxModel',{
+    checkOnly:true });
 	var grid = Ext.create('Ext.grid.Panel', {
-		renderTo : 'grid-div',
-		layout : 'fit',
-		autoScroll: true,
-		height : 350,
-//		iconCls : 'icon-cog',
-		title : 'Tasks',
+		
 		store : taskStore,
-		plugins : [rowEditor],
-		dockedItems : [toolbar],
+		selModel: sm,
 		columns : [{
 			text : 'ID',
 			dataIndex : 'id',
@@ -529,8 +539,18 @@ Ext.onReady(function() {
 			dataIndex : 'serverId',
 			flex : 1,
 			sortable : true
-		}]
+		}],
+		columnLines: true,
+		height : 350,
+		title : 'Tasks',
+//		iconCls : 'icon-cog',
+		layout : 'fit',
+		autoScroll: true,
+		plugins : [rowEditor],
+		dockedItems : [toolbar],
+		renderTo : 'grid-div'
 	});
+	
 
 	// TODO Handle toolbar actions from one place
 	grid.getSelectionModel().on('selectionchange', function(selModel, selections) {
