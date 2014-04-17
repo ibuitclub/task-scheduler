@@ -147,7 +147,7 @@ Ext.onReady(function() {
 		var item = grid.getView().getSelectionModel().getSelection()[0];
 		if (item) {
 			if (item.get('scheduled') === true) {
-				Ext.MessageBox.pop('Error', 'Task cannot be udated while running');
+				Ext.MessageBox.pop('Error', 'Task cannot be updated while running');
 //				taskStore.load();
 			} else {
 				taskStore.save();
@@ -207,22 +207,29 @@ Ext.onReady(function() {
 				taskStore.insert(0, new Task());
 				rowEditor.startEdit(0, 0);
 			}
-		}, {
+		}, 
+		
+		//Major bug: arrays issue; items.get('id') only gets last record selected? cancels only the last record selected; every other bug related to this;
+		//schedule all tasks; Scheduled vs Running now! running now works, scheduled?
+		{
 			itemId : 'btn-delete',
 			text : 'Delete',
 			tooltip : 'Delete selected task',
 			iconCls : 'icon-delete',
 			disabled : true,
 			handler : function() {
-				var item = grid.getView().getSelectionModel().getSelection()[0];
+				var items = grid.getView().getSelectionModel().getSelection();
+				for (var i = 0; i < items.length; i++){
+				var item = items [i];
 				if (item) {
-					Ext.Msg.confirm('Confirm', 'Are you sure you want to delete selected item?', function(response) {
+					Ext.Msg.confirm('Confirm','Total: ' + items.length + ' jobs.' + "<br>" + 'Selected: ' + items[i].get('title')+ "<br>" + 'Are you sure you want to delete selected item/s?', function(response) {
 						if (response == 'yes') {
-							taskStore.remove(item);
+							taskStore.remove(items);
 							taskStore.save();
 						}
 					});
-				}
+					}
+													} //for loop ends here
 			}
 		}, {
 			itemId : 'btn-schedule',
@@ -231,21 +238,9 @@ Ext.onReady(function() {
 			iconCls : 'icon-schedule',
 			disabled : true,
 			handler : function() {
-			var item = grid.getView().getSelectionModel().getSelection()[0];
-		
-		//problem: when multiple records are selected, only the first row selected executes its job
-				
-		//	var dataToSend = new Array();						first potential solution
-		//		for (var i = 0; i < selection.length; i++) {
-		//		dataToSend.push(selection[i]);
-		//				}
-		//									
-		//	selected = [];										second potential solution
-		//	Ext.each(s, function (item) {
-		//	selected.push(item.data.someField);
-		//								}); 
-				
-				
+				var items = grid.getView().getSelectionModel().getSelection(); 
+				for (var i = 0; i < items.length; i++){
+				var item = items [i];
 				if (item) {
 					Ext.Ajax.request({
 						method : 'POST',
@@ -261,6 +256,7 @@ Ext.onReady(function() {
 						}
 					});
 				}
+													}//for loop ends here
 			}
 		}, {
 			itemId : 'btn-cancel',
@@ -269,9 +265,11 @@ Ext.onReady(function() {
 			iconCls : 'icon-cancel',
 			disabled : true,
 			handler : function() {
-				var item = grid.getView().getSelectionModel().getSelection()[0];
+				var items = grid.getView().getSelectionModel().getSelection();
+				for (var i = 0; i < items.length; i++){
+				var item = items [i];
 				if (item) {
-					Ext.Msg.confirm('Confirm', 'Are you sure you want to cancel selected item?', function(response) {
+					Ext.Msg.confirm('Confirm', 'Are you sure you want to cancel selected item/s?', function(response) {
 						if (response == 'yes') {
 							Ext.Ajax.request({
 								method : 'DELETE',
@@ -289,6 +287,7 @@ Ext.onReady(function() {
 						}
 					});
 				}
+				}//for loop ends here
 			}
 		}, {
 			itemId : 'btn-log',
