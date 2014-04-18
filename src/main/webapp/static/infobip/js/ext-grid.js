@@ -209,8 +209,8 @@ Ext.onReady(function() {
 			}
 		}, 
 		
-		//Major bug: arrays issue; items.get('id') only gets last record selected? cancels only the last record selected; every other bug related to this;
-		//schedule all tasks; Scheduled vs Running now! running now works, scheduled?
+		//BUG: cancel all tasks; running now works! scheduled fails!
+		//schedule all tasks; scheduled works! running now, last element fails! COMPARATION scheduled vs running now
 		{
 			itemId : 'btn-delete',
 			text : 'Delete',
@@ -219,18 +219,19 @@ Ext.onReady(function() {
 			disabled : true,
 			handler : function() {
 				var items = grid.getView().getSelectionModel().getSelection();
-				for (var i = 0; i < items.length; i++){
-				var item = items [i];
-				if (item) {
-					Ext.Msg.confirm('Confirm','Total: ' + items.length + ' jobs.' + "<br>" + 'Selected: ' + items[i].get('title')+ "<br>" + 'Are you sure you want to delete selected item/s?', function(response) {
+				var selected;
+				if (items) {
+					for (var i = 0; i < items.length; i++){
+						selected = selected + ', ' + items[i].get('title'); //minor bug, displaying selected as undefined element as array search non exist index?
+						Ext.Msg.confirm('Confirm','Total: ' + items.length + ' jobs.' + "<br>" + 'Selected: ' + selected + "<br>" + "<br>" +'<b>Are you sure you want to delete selected item/s?</b>', function(response) {
 						if (response == 'yes') {
 							taskStore.remove(items);
 							taskStore.save();
 						}
 					});
-					}
-													} //for loop ends here
+				}
 			}
+		}
 		}, {
 			itemId : 'btn-schedule',
 			text : 'Schedule',
