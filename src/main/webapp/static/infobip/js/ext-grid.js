@@ -147,7 +147,7 @@ Ext.onReady(function() {
 		var item = grid.getView().getSelectionModel().getSelection()[0];
 		if (item) {
 			if (item.get('scheduled') === true) {
-				Ext.MessageBox.pop('Error', 'Task cannot be udated while running');
+				Ext.MessageBox.pop('Error', 'Task cannot be updated while running');
 //				taskStore.load();
 			} else {
 				taskStore.save();
@@ -207,23 +207,31 @@ Ext.onReady(function() {
 				taskStore.insert(0, new Task());
 				rowEditor.startEdit(0, 0);
 			}
-		}, {
+		}, 
+		
+		//BUG: cancel all tasks; running now works! scheduled fails!
+		//schedule all tasks; scheduled works! running now, last element fails! COMPARATION scheduled vs running now
+		{
 			itemId : 'btn-delete',
 			text : 'Delete',
 			tooltip : 'Delete selected task',
 			iconCls : 'icon-delete',
 			disabled : true,
 			handler : function() {
-				var item = grid.getView().getSelectionModel().getSelection()[0];
-				if (item) {
-					Ext.Msg.confirm('Confirm', 'Are you sure you want to delete selected item?', function(response) {
+				var items = grid.getView().getSelectionModel().getSelection();
+				var selected;
+				if (items) {
+					for (var i = 0; i < items.length; i++){
+						selected = selected + ', ' + items[i].get('title'); //minor bug, displaying selected as undefined element as array search non exist index?
+						Ext.Msg.confirm('Confirm','Total: ' + items.length + ' jobs.' + "<br>" + 'Selected: ' + selected + "<br>" + "<br>" +'<b>Are you sure you want to delete selected item/s?</b>', function(response) {
 						if (response == 'yes') {
-							taskStore.remove(item);
+							taskStore.remove(items);
 							taskStore.save();
 						}
 					});
 				}
 			}
+		}
 		}, {
 			itemId : 'btn-schedule',
 			text : 'Schedule',
@@ -231,7 +239,9 @@ Ext.onReady(function() {
 			iconCls : 'icon-schedule',
 			disabled : true,
 			handler : function() {
-				var item = grid.getView().getSelectionModel().getSelection()[0];
+				var items = grid.getView().getSelectionModel().getSelection(); 
+				for (var i = 0; i < items.length; i++){
+				var item = items [i];
 				if (item) {
 					Ext.Ajax.request({
 						method : 'POST',
@@ -247,6 +257,7 @@ Ext.onReady(function() {
 						}
 					});
 				}
+													}//for loop ends here
 			}
 		}, {
 			itemId : 'btn-cancel',
@@ -255,9 +266,11 @@ Ext.onReady(function() {
 			iconCls : 'icon-cancel',
 			disabled : true,
 			handler : function() {
-				var item = grid.getView().getSelectionModel().getSelection()[0];
+				var items = grid.getView().getSelectionModel().getSelection();
+				for (var i = 0; i < items.length; i++){
+				var item = items [i];
 				if (item) {
-					Ext.Msg.confirm('Confirm', 'Are you sure you want to cancel selected item?', function(response) {
+					Ext.Msg.confirm('Confirm', 'Are you sure you want to cancel selected item/s?', function(response) {
 						if (response == 'yes') {
 							Ext.Ajax.request({
 								method : 'DELETE',
@@ -275,6 +288,7 @@ Ext.onReady(function() {
 						}
 					});
 				}
+				}//for loop ends here
 			}
 		}, {
 			itemId : 'btn-log',
@@ -365,17 +379,13 @@ Ext.onReady(function() {
 			}
 		}]
 	};
-
+	
+	var sm = Ext.create('Ext.selection.CheckboxModel',{
+    checkOnly:true });
 	var grid = Ext.create('Ext.grid.Panel', {
-		renderTo : 'grid-div',
-		layout : 'fit',
-		autoScroll: true,
-		height : 350,
-//		iconCls : 'icon-cog',
-		title : 'Tasks',
+		
 		store : taskStore,
-		plugins : [rowEditor],
-		dockedItems : [toolbar],
+		selModel: sm,
 		columns : [{
 			text : 'ID',
 			dataIndex : 'id',
@@ -529,8 +539,18 @@ Ext.onReady(function() {
 			dataIndex : 'serverId',
 			flex : 1,
 			sortable : true
-		}]
+		}],
+		columnLines: true,
+		height : 350,
+		title : 'Tasks',
+//		iconCls : 'icon-cog',
+		layout : 'fit',
+		autoScroll: true,
+		plugins : [rowEditor],
+		dockedItems : [toolbar],
+		renderTo : 'grid-div'
 	});
+	
 
 	// TODO Handle toolbar actions from one place
 	grid.getSelectionModel().on('selectionchange', function(selModel, selections) {
